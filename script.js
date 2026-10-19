@@ -1,4 +1,7 @@
 (function(){
+  // TROCAR pelo número real (DDI+DDD+número, só dígitos) ao usar este modelo.
+  const WHATSAPP='5500000000000';
+  document.querySelectorAll('[data-wa]').forEach(a=>a.href='https://wa.me/'+WHATSAPP);
   /* ---------- UI sem animação ---------- */
   const nav=document.getElementById('nav'),burger=document.getElementById('burger'),menu=document.getElementById('menu');
   const onScroll=()=>nav.classList.toggle('solid',window.scrollY>40);
@@ -23,8 +26,31 @@
     e.preventDefault();
     const n=document.getElementById('f-nome').value.trim(),a=document.getElementById('f-area').value,m=document.getElementById('f-msg').value.trim();
     const txt=`Olá, meu nome é ${n}. Assunto: ${a}.${m?'\n'+m:''}`;
-    window.open('https://wa.me/5519992355314?text='+encodeURIComponent(txt),'_blank','noopener');
+    window.open('https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(txt),'_blank','noopener');
   });
+
+
+  /* ---------- popout dos advogados ---------- */
+  (function(){
+    const modal=document.getElementById('advModal');if(!modal)return;
+    const photo=document.getElementById('advPhoto'),role=document.getElementById('advRole'),nm=document.getElementById('advName'),txt=document.getElementById('advText');
+    const sil='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2.25c-3.1 0-9 1.55-9 4.65V21h18v-2.1c0-3.1-5.9-4.65-9-4.65Z"/></svg>';
+    let last=null;
+    const open=p=>{
+      last=p;const d=p.querySelector('.adv-data'),img=d.querySelector('img'),src=img.dataset.src;
+      photo.innerHTML=src?'<img src="'+src+'" alt="'+img.alt+'">':sil;
+      role.textContent=p.querySelector('span').textContent;nm.textContent=p.querySelector('h3').textContent;
+      txt.innerHTML='';[...d.children].forEach(c=>{if(c.tagName!=='IMG')txt.appendChild(c.cloneNode(true))});
+      modal.hidden=false;document.body.style.overflow='hidden';modal.querySelector('.modal-x').focus();
+    };
+    const close=()=>{modal.hidden=true;document.body.style.overflow='';last&&last.focus()};
+    document.querySelectorAll('[data-adv]').forEach(p=>{
+      p.addEventListener('click',()=>open(p));
+      p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open(p)}});
+    });
+    modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('.modal-x'))close()});
+    addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close()});
+  })();
 
   if(!window.gsap){return;}
   gsap.registerPlugin(ScrollTrigger);
